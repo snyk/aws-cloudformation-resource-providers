@@ -1,0 +1,7 @@
+{
+  "Name": "{{SnykHelmContractTestReleaseName}}",
+  "ID": "{{SnykHelmContractTestTestID}}",
+  "RoleArn": "{{SnykHelmContractTestHelmRoleArn}}",
+  "ClusterID": "{{SnykHelmContractTestClusterName}}",
+  "Namespace": "snyk-monitor"
+}
