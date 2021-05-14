@@ -9,6 +9,9 @@ Parameters:
   SnykIntegrationId:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /cloudformation-contract-test/SnykIntegrationId
+  KubernetesResourceRoleArn:
+    Type: String
+    Description: Role arn for the role used by the AWSQS::Kubernetes::Resource resource type
 Resources:
   ControlPlaneRole:
     Type: "AWS::IAM::Role"
@@ -104,11 +107,11 @@ Resources:
           - Arn: !Sub arn:aws:iam::${AWS::AccountId}:role/awsqs-kubernetes-helm
             Username: "AdminRole"
             Groups: [ "system:masters" ]
-          - Arn: !Sub arn:aws:iam::${AWS::AccountId}:role/awsqs-kubernetes-resource
-            Username: "AdminRole"
+          - Arn: !Ref KubernetesResourceRoleArn
+            Username: "AWSQSKubernetesResourceRole"
             Groups: [ "system:masters" ]
           - Arn: !Sub arn:aws:iam::${AWS::AccountId}:role/awsqs-kubernetes-get
-            Username: "AdminRole"
+            Username: "AWSQSKubernetesGetRole"
             Groups: [ "system:masters" ]
   WorkerRole:
     Type: "AWS::IAM::Role"
