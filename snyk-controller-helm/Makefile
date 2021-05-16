@@ -18,7 +18,7 @@ clean:
 
 register:
 	set -ex ; \
-	aws s3 cp ./build/$(TYPE_NAME_LOWER).zip s3://$(BUCKET)/ ;\
+	aws s3 cp ./$(TYPE_NAME_LOWER).zip s3://$(BUCKET)/ ;\
 	TOKEN=`aws cloudformation register-type \
 		--type "RESOURCE" \
 		--type-name  "$(TYPE_NAME)" \
