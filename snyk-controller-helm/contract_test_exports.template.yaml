@@ -69,6 +69,7 @@ Resources:
                   - "logs:DescribeLogStreams"
                   - "cloudwatch:ListMetrics"
                   - "cloudwatch:PutMetricData"
+                  - "cloudformation:ListExports"
                 Resource: '*'
       AssumeRolePolicyDocument:
         Version: 2012-10-17
