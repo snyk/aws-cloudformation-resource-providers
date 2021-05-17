@@ -9,6 +9,9 @@ Parameters:
   SnykIntegrationId:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /cloudformation-contract-test/SnykIntegrationId
+  KubernetesResourceRoleArn:
+    Type: String
+    Description: Role arn for the role used by the AWSQS::Kubernetes::Resource resource type
 Resources:
   ControlPlaneRole:
     Type: "AWS::IAM::Role"
@@ -62,6 +65,11 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                   - lambda:*
+                  - "logs:DescribeLogGroups"
+                  - "logs:DescribeLogStreams"
+                  - "cloudwatch:ListMetrics"
+                  - "cloudwatch:PutMetricData"
+                  - "cloudformation:ListExports"
                 Resource: '*'
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -71,34 +79,16 @@ Resources:
               Service:
                 - lambda.amazonaws.com
                 - resources.cloudformation.amazonaws.com
+                - cloudformation.amazonaws.com
               AWS: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:root'
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AmazonS3ReadOnlyAccess'
-  VPCStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub 'https://aws-quickstart.s3.us-east-1.amazonaws.com/quickstart-aws-vpc/templates/aws-vpc.template'
-      Parameters:
-        AvailabilityZones: !Sub
-                            - "${Sub1},${Sub2}"
-                            - Sub1: !Select [ "0", Fn::GetAZs: !Ref 'AWS::Region']
-                              Sub2: !Select [ "1", Fn::GetAZs: !Ref 'AWS::Region']
-        NumberOfAZs: 2
-        PrivateSubnet1ACIDR: '10.0.0.0/24'
-        PrivateSubnet2ACIDR: '10.0.1.0/24'
-        PrivateSubnet3ACIDR: '10.0.2.0/24'
-        PrivateSubnetATag2: "kubernetes.io/role/internal-elb="
-        PublicSubnet1CIDR: '10.0.10.0/24'
-        PublicSubnet2CIDR: '10.0.11.0/24'
-        PublicSubnet3CIDR: '10.0.12.0/24'
-        PublicSubnetTag2: "kubernetes.io/role/elb="
-        VPCCIDR: '10.0.0.0/16'
   ControlPlaneSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Cluster communication
-      VpcId: !GetAtt VPCStack.Outputs.VPCID
+      VpcId: !ImportValue helm-resource-provider-contract-tests-vpc-VPCID
   Cluster:
     Type: "AWSQS::EKS::Cluster"
     Properties:
@@ -108,8 +98,8 @@ Resources:
         ServiceIpv4Cidr: "192.168.0.0/16"
       ResourcesVpcConfig:
         SubnetIds:
-          - !GetAtt VPCStack.Outputs.PrivateSubnet1AID
-          - !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+          - !ImportValue helm-resource-provider-contract-tests-vpc-PrivateSubnet1AID
+          - !ImportValue helm-resource-provider-contract-tests-vpc-PrivateSubnet2AID
         SecurityGroupIds:
           - !Ref ControlPlaneSecurityGroup
         PublicAccessCidrs:
@@ -123,11 +113,11 @@ Resources:
           - Arn: !Sub arn:aws:iam::${AWS::AccountId}:role/awsqs-kubernetes-helm
             Username: "AdminRole"
             Groups: [ "system:masters" ]
-          - Arn: !Sub arn:aws:iam::${AWS::AccountId}:role/awsqs-kubernetes-resource
-            Username: "AdminRole"
+          - Arn: !Ref KubernetesResourceRoleArn
+            Username: "AWSQSKubernetesResourceRole"
             Groups: [ "system:masters" ]
           - Arn: !Sub arn:aws:iam::${AWS::AccountId}:role/awsqs-kubernetes-get
-            Username: "AdminRole"
+            Username: "AWSQSKubernetesGetRole"
             Groups: [ "system:masters" ]
   WorkerRole:
     Type: "AWS::IAM::Role"
@@ -153,8 +143,8 @@ Resources:
         DesiredSize: 1
         MaxSize: 3
       Subnets:
-        - !GetAtt VPCStack.Outputs.PrivateSubnet1AID
-        - !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+        - !ImportValue helm-resource-provider-contract-tests-vpc-PrivateSubnet1AID
+        - !ImportValue helm-resource-provider-contract-tests-vpc-PrivateSubnet2AID
   IDGenRole:
     Type: AWS::IAM::Role
     Properties:
