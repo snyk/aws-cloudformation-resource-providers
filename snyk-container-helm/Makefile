@@ -2,7 +2,7 @@
 
 EX_ROLE ?= arn:aws:iam::<ACCID>:role/<ROLENAME>
 LOG_ROLE ?= arn:aws:iam::<ACCID>:role/<ROLENAME>
-TYPE_NAME ?= Snyk::Controller::Helm
+TYPE_NAME ?= Snyk::Container::Helm
 TYPE_NAME_LOWER ?= $(shell echo $(TYPE_NAME) | tr '[:upper:]' '[:lower:]' | sed s/::/-/g)
 BUCKET ?= awsqs-resource-type-ci
 

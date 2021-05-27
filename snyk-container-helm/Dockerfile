@@ -12,4 +12,4 @@ RUN GOPROXY=direct go mod download
 
 RUN GOPROXY=direct make -f Makefile.package package
 
-CMD mkdir -p /output/ && mv /build/snyk-controller-helm.zip /output/
+CMD mkdir -p /output/ && mv /build/snyk-container-helm.zip /output/
