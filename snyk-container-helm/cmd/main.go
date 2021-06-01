@@ -8,7 +8,7 @@ import (
 
 	"github.com/aws-cloudformation/cloudformation-cli-go-plugin/cfn"
 	"github.com/aws-cloudformation/cloudformation-cli-go-plugin/cfn/handler"
-	"github.com/snyk/aws-cloudformation-resource-providers/snyk-controller-helm/cmd/resource"
+	"github.com/snyk/aws-cloudformation-resource-providers/snyk-container-helm/cmd/resource"
 )
 
 // Handler is a container for the CRUDL actions exported by resources
