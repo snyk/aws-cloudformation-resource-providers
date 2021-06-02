@@ -1,4 +1,4 @@
-# Snyk::Controller::Helm VPCConfiguration
+# Snyk::Container::Helm VPCConfiguration
 
 For network connectivity to Cluster inside VPC
 

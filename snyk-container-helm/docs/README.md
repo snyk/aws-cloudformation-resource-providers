@@ -1,4 +1,4 @@
-# Snyk::Controller::Helm
+# Snyk::Container::Helm
 
 A resource provider for Snyk Controller
 
@@ -10,7 +10,7 @@ To declare this entity in your AWS CloudFormation template, use the following sy
 
 <pre>
 {
-    "Type" : "Snyk::Controller::Helm",
+    "Type" : "Snyk::Container::Helm",
     "Properties" : {
         "<a href="#clusterid" title="ClusterID">ClusterID</a>" : <i>String</i>,
         "<a href="#kubeconfig" title="KubeConfig">KubeConfig</a>" : <i>String</i>,
@@ -30,7 +30,7 @@ To declare this entity in your AWS CloudFormation template, use the following sy
 ### YAML
 
 <pre>
-Type: Snyk::Controller::Helm
+Type: Snyk::Container::Helm
 Properties:
     <a href="#clusterid" title="ClusterID">ClusterID</a>: <i>String</i>
     <a href="#kubeconfig" title="KubeConfig">KubeConfig</a>: <i>String</i>

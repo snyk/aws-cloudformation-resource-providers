@@ -1,4 +1,4 @@
-module github.com/snyk/aws-cloudformation-resource-providers/snyk-controller-helm
+module github.com/snyk/aws-cloudformation-resource-providers/snyk-container-helm
 
 go 1.16
 

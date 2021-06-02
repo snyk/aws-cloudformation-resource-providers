@@ -1,4 +1,4 @@
-# Snyk::Controller::Helm Values
+# Snyk::Container::Helm Values
 
 Custom Values can optionally be specified
 
