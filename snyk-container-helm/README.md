@@ -1,1 +1,77 @@
 # Snyk::Container::Helm
+
+An AWS CloudFormation resource type that deploys the Snyk Container monitor into EKS clusters using helm.
+
+## Prerequisites
+
+### IAM role
+An IAM role is used by CloudFormation to execute this resource type handler code.
+A CloudFormation template to create the execution role is available
+[here](./execution-role.template.yaml)
+
+### Create an EKS cluster and provide CloudFormation access to the Kubernetes API
+EKS clusters use IAM to allow access to the kubernetes API, as the CloudFormation resource types in this project
+interact with the kubernetes API, the IAM execution role must be granted access to the kubernetes API. This can be done
+in one of two ways:
+* Create the cluster using CloudFormation: Currently there is no native way to manage EKS auth using CloudFormation
+  (+1 [this GitHub issue](https://github.com/aws/containers-roadmap/issues/554) to help prioritize native support).
+  `AWSQS::EKS::Cluster` type fills this gap today. Instructions on activation and usage can be found
+  [here](https://github.com/aws-quickstart/quickstart-amazon-eks-cluster-resource-provider/blob/main/README.md).
+* Manually: to allow this resource type to access the kubernetes API, follow the
+  [instructions in the EKS documentation](https://docs.aws.amazon.com/eks/latest/userguide/add-user-role.html) adding
+  the IAM execution role created above to the `system:masters` group. (Note: you can scope this down if you plan to use
+  the resource type to only perform specific operations on the kubernetes cluster)
+
+## Activating the resource type
+***Coming soon***
+
+## Usage
+Properties and return values for the resource type are documented [here](./docs/README.md).
+
+Documentation for the helm chart is available [here](https://support.snyk.io/hc/en-us/articles/360003916158-Install-the-Snyk-controller-with-Helm).
+
+## Examples
+
+### Deploy the Snyk Container monitor
+```yaml
+AWSTemplateFormatVersion: "2010-09-09"
+Parmaeters:
+  SnykIntegrationId: 
+    Type: String
+    NoEcho: true
+Resources:
+  SnykNamespace:
+  Type: "AWSQS::Kubernetes::Resource"
+  Properties:
+    ClusterName: !Ref Cluster
+    Namespace: default
+    Manifest: !Sub |
+      kind: Namespace
+      apiVersion: v1
+      metadata:
+        name: snyk
+  SnykSecret:
+    Type: "AWSQS::Kubernetes::Resource"
+    DependsOn: SnykNamespace
+    Properties:
+      ClusterName: !Ref ClusterName
+      Namespace: snyk
+      Manifest: !Sub
+        - |
+          kind: Secret
+          apiVersion: v1
+          metadata:
+            name: snyk-monitor
+          type: Opaque
+          data:
+            dockercfg.json: ${DockerCfg}
+            integrationId: ${IntegrationId}
+        - DockerCfg: !Base64 "{}"
+          IntegrationId: { 'Fn::Base64': !Ref SnykIntegrationId }
+  SnykMonitor:
+    Type: "Snyk::Container::Helm"
+    Properties:
+      ClusterID: my-cluster-name
+      Name: snyk-monitor
+      Namespace: snyk
+```
