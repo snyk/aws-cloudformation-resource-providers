@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine
+FROM golang:1.20.3-alpine
 
 RUN apk --no-cache add py3-pip make git zip
 
